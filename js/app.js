@@ -1,4 +1,3 @@
-
 $(document).ready(function(){
 	
 	/*--- Display information modal box ---*/
@@ -10,73 +9,79 @@ $(document).ready(function(){
 	/*--- Hide information modal box ---*/
 	$("a.close").click(function(){
 		$(".overlay").fadeOut(1000);
+
 	});
-
-	function newGame(){
-		var randomNum = Math.floor((Math.random() *100)+1);
-		console.log(randomNum);
-		var lastGuess = null;
-		var guessNum = 0
-		function compareGuesses(random, currentGuess, previousGuess){
-			if((Math.abs(random - previousGuess)) > (Math.abs(random - currentGuess))){
-				$('#feedback').html('Warmer!');
+	var randomNum, lastGuess, guessNum;
+	function compareWithLastGuess(random, previousGuess, distance){
+		if((Math.abs(random - previousGuess)) > distance){
+			setFeedback('Warmer!');
+		}
+		else if((Math.abs(random - previousGuess)) === distance){
+			setFeedback('Same Temp');
+		}
+		else{
+			setFeedback('Colder');
+		}; 				
+	}
+	function setFeedback(feedback){
+		$('#feedback').html(feedback);
+	}
+	function compareGuess(userGuess,lastGuess, randomNum){
+		var distance = Math.abs(randomNum-userGuess);
+		if(userGuess === randomNum){
+			setFeedback('You got the right number in ' + guessNum + ' guesses!!! Congratulations!! Click the \"New Game\" button to start a new game');
+		}
+		else if(lastGuess===null){
+			if(Math.abs(randomNum-userGuess)>=90){
+				setFeedback('Extremely Cold');
 			}
-			else if((Math.abs(random - previousGuess)) === (Math.abs(random - currentGuess))){
-				$('#feedback').html('Same Temp');
+			else if(90>distance && distance>=70){
+				setFeedback('Very Cold');
 			}
-			else{
-				$('#feedback').html('Colder');
-			}; 				
-		};
-
-		$('#guessButton').click(function(){
-			var userGuess = parseInt($('#userGuess').val());
-			console.log(userGuess);
-			guessNum+=1;
-			$('#count').html(guessNum);
-			if(userGuess === randomNum){
-				$('#feedback').html('You got the right number in ' + guessNum + ' guesses!!! Congratulations!! Click the \"New Game\" button to start a new game');
+			else if(70>distance && distance>=50){
+				setFeedback('Pretty Cold');
 			}
-			else if(lastGuess===null){
-				if(Math.abs(randomNum-userGuess)>=90){
-					$('#feedback').html('Extremely Cold');
-				}
-				else if(90>Math.abs(randomNum-userGuess)&Math.abs(randomNum-userGuess)>=70){
-					$('#feedback').html('Very Cold');
-				}
-				else if(70>Math.abs(randomNum-userGuess)&Math.abs(randomNum-userGuess)>=50){
-					$('#feedback').html('Pretty Cold');
-				}
-				else if(50>Math.abs(randomNum-userGuess)&Math.abs(randomNum-userGuess)>=30){
-					$('#feedback').html('Cold');
-				}
-				else if(30>Math.abs(randomNum-userGuess)&Math.abs(randomNum-userGuess)>=20){
-					$('#feedback').html('Cool');
-				}
-				else if(20>Math.abs(randomNum-userGuess)&Math.abs(randomNum-userGuess)>=10){
-					$('#feedback').html('Warm');
-				}
-				else if(10>Math.abs(randomNum-userGuess)&Math.abs(randomNum-userGuess)>=5){
-					$('#feedback').html('Very Warm');
-				}else{
-					$('#feedback').html('Hot!!!');
-					console.log('Hot');
-				}
+			else if(50>distance && distance>=30){
+				setFeedback('Cold');
+			}
+			else if(30>distance && distance>=20){
+				setFeedback('Cool');
+			}
+			else if(20>distance && distance>=10){
+				setFeedback('Warm');
+			}
+			else if(10>distance && distance>=5){
+				setFeedback('Very Warm');
 			}else{
-				compareGuesses(randomNum, userGuess, lastGuess);
-			};
-			$('#guessList').prepend('<li class="guesses">'+userGuess+'</li>')
-			lastGuess = userGuess;
-		});	 
+				setFeedback('Hot!!!');
+			}
+		}else{
+			compareWithLastGuess(randomNum, lastGuess, distance);
+		};
+	}
+	function newGame(){
+		setFeedback('Make your Guess!');
+		$('#guessList').empty();
+		$('#userGuess').val('');
+		randomNum = Math.floor((Math.random() *100)+1);
+		lastGuess = null;
+		guessNum = 0
+		$('#count').html(guessNum);	 
 	};
 	newGame();
 	$('.new').click(function(){
 		newGame();
-		$('#feedback').html('Make your Guess!');
-		$('#guessList').empty();
+	});
+	$('.guessForm').submit(function(event){
+		event.preventDefault();
+		var userGuess = parseInt($('#userGuess').val());
+		guessNum+=1;
+		$('#count').html(guessNum);
+		compareGuess(userGuess, lastGuess, randomNum);
+		$('#guessList').prepend('<li class="guesses">'+userGuess+'</li>');
+		lastGuess = userGuess;
 		$('#userGuess').val('');
-
-	})
+	});
 });
 
 
